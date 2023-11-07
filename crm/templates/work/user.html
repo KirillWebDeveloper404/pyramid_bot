@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    <link rel="stylesheet" href="{% static 'css/work/main.css' %}">
+
+    <div class="mainPage">
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="templateCard">
+
+                <table class="table">
+                    <tbody style="width: 30vw;">
+                        <tr>
+                            <td>Telegram id</td>
+                            <td>{{user.tg_id}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <a href="{% url 'main' 'users' %}"><button class="button" type="button">Назад</button></a>
+            <button class="button" type="submit" name="delete" style="color: red; border-color: red;">Удалить</button>
+            {% if ban %}
+                <button class="button" type="submit" name="ban" style="color: red; border-color: red;">Разблокировать</button>
+            {% else %}
+                <button class="button" type="submit" name="ban" style="color: red; border-color: red;">Заблокировать</button>
+            {% endif %}
+            <button class="button" type="submit">Сохранить</button>
+        </form>
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <input id="msg" name="msg" class="form-control searchInpt" type="text" placeholder="Сообщение...">
+            <button class="button" type="submit">Отправить</button>
+
+            {% for el in msg %}
+                <div class="templateCard" {% if el.user %} style="background-color: #4ac1f7;" {% endif %}>
+                    <div class="card-body">
+                        {{el.text}}
+                    </div>
+                </div>
+            {% endfor %}
+
+        </form>
+
+    </div>
+
+{% endblock main %}

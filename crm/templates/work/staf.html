@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    <link rel="stylesheet" href="{% static 'css/work/main.css' %}">
+
+    <div class="mainPage">
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="templateCard">
+                <h1 class="title-blok"><input type="text" name="name" value="{{user.name}}" style="width: 100%;"></h1>
+                <table class="table">
+                    <tbody style="width: 30vw;">
+                        <tr>
+                            <td>Логин</td>
+                            <td><input type="text" name="phone" value="{{user.phone}}"></td>
+                        </tr>
+                        <tr>
+                            <td>Дата регистрации</td>
+                            <td>{{user.date_joined|date:"d.m.Y"}}</td>
+                        </tr>
+                        <tr>
+                            <td>Входил в систему</td>
+                            <td>{{user.last_login|date:"d.m.Y H:i"}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'main' 'manage' %}"><button class="button" type="button">Назад</button></a>
+            <button class="button" type="submit" name="delete">Удалить</button>
+            <button class="button" type="submit">Сохранить</button>
+        </form>
+
+    </div>
+
+{% endblock main %}

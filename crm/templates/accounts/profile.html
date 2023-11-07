@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    <link rel="stylesheet" href="{% static 'css/work/main.css' %}">
+
+    <div class="mainPage">
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="templateCard">
+                <h1 class="title-blok">{{user.name}}</h1>
+                <table class="table">
+                    <tbody style="width: 30vw;">
+                        <tr>
+                            <td>Номер телефона</td>
+                            <td>{{user.phone}}</td>
+                        </tr>
+                        <tr>
+                            <td>Сменить пароль</td>
+                            <td><input type="text" name="psswd" placeholder="Новый пароль" onkeyup="
+                                document.getElementById('save').style.display = 'block'
+                                "></td>
+                        </tr>
+                        <tr>
+                            <td>Доступ к управлению персоналом</td>
+                            <td>
+                                {% if user.manage %}✅{% else %}❌{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Доступ к пользователям</td>
+                            <td>
+                                {% if user.user_manage %}✅{% else %}❌{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Доступ к управлению гильдиями</td>
+                            <td>
+                                {% if user.chat_manage %}✅{% else %}❌{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Доступ к управлению каналами</td>
+                            <td> 
+                                {% if user.channel_manage %}✅{% else %}❌{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Дата регистрации</td>
+                            <td>{{user.date_joined|date:"d.m.Y"}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="button" type="submit" id="save" style="display: none;">Сохранить</button>
+        </form>
+
+    </div>
+
+{% endblock main %}

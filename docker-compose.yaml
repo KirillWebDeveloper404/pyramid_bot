@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  crm:
+    image: deeplinks
+    restart: always
+    privileged: true
+    ports:
+      - 188.225.72.158:80:80
+    volumes:
+      - /root/deeplinks/bot.db:/app/bot.db:rw
+      - /root/deeplinks/crm/media/:/app/crm/media/:rw
+    command: >
+      bash -c
+        "python crm/manage.py runserver 0.0.0.0:80"
+
+  bot:
+    image: deeplinks
+    restart: always
+    privileged: true
+    volumes:
+      - /root/deeplinks/bot.db:/app/bot.db:rw
+    command: >
+      bash -c
+        "python bot/app.py"

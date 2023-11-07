@@ -1,0 +1,6 @@
+aiogram==2.14.3
+Django==3.2.8
+environs==9.3.2
+loguru==0.6.0
+peewee==3.15.0
+randstr==0.1.2

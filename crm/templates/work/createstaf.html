@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    <link rel="stylesheet" href="{% static 'css/work/main.css' %}">
+
+    <div class="mainPage">
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="templateCard">
+                <table class="table">
+                    <tbody style="width: 30vw;">
+                        <tr>
+                            <td>Должность и имя</td>
+                            <td><input type="text" name="name" class="searchInpt" style="border: 1px solid rgba(142,148,177,.5);"></td>
+                        </tr>
+                        <tr>
+                            <td>Логин</td>
+                            <td><input type="text" name="phone" class="searchInpt" style="border: 1px solid rgba(142,148,177,.5);"></td>
+                        </tr>
+                        <tr>
+                            <td>Пароль</td>
+                            <td><input type="password" name="psswd" class="searchInpt" style="border: 1px solid rgba(142,148,177,.5);"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'main' 'manage' %}"><button class="button" type="button">Назад</button></a>
+            <button class="button" type="submit">Сохранить</button>
+        </form>
+
+    </div>
+
+{% endblock main %}

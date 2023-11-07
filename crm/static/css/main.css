@@ -1,0 +1,10 @@
+.menu {
+    margin-left: 70%; 
+    margin-top: 30px;
+}
+
+.menu__item {
+    color: #3333a9;
+    font-weight: bold;
+}
+

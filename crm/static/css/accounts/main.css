@@ -1,0 +1,35 @@
+.signForm {
+    display: block;
+    text-align: center;
+    margin: 200px auto;
+}
+
+.sing-h1{
+    display: block; 
+    font-size: 34.5 pt;
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+.sign-inpt {
+    width: 300px;
+    height: 30px;
+    display: block; 
+    margin: 10px auto;
+    border: 1px solid gray;
+    border-radius: 6px;
+}
+
+.next {
+    background: #2339aa;
+    color: #fff;
+    font-weight: 600;
+    font-size: 15pt;
+    cursor: pointer;
+    box-shadow: 0 20px 25px rgb(0 0 0 / 10%), 0 10px 10px rgb(0 0 0 / 4%);
+    width: 100px;
+    height: 50px;
+    border: 0;
+    margin: 5px auto;
+    border-radius: 10px;
+}

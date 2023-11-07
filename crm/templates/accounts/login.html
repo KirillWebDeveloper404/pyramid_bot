@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block main %}
+    <link rel="stylesheet" href="{% static 'css/accounts/main.css' %}">
+    
+    <div class="signForm">
+        <form action="" method="post">
+            {% csrf_token %}
+            <h1 class="sing-h1">Вход</h1>
+            <input class="sign-inpt" type="text" class="form-control" name="phone" placeholder="Номер телефона" required>
+            <input class="sign-inpt" type="password" class="form-control" name="passwd" placeholder="Пароль" required>
+            <button class="next" type="submit" name="num">Далее</button><br>
+        </form>
+    </div>
+
+{% endblock main %}

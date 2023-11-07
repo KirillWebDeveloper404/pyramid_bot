@@ -1,0 +1,90 @@
+.mainPage {
+    margin: 100px auto;
+    max-width: 1000px;
+    width: calc(100%-60px);
+}
+
+.button {
+    color: #3333a9; 
+    background-color: #fff; 
+    border: #3333a9 solid 2px; 
+    border-radius: 5px;
+    height: 50px;
+    font-weight: bold; 
+    font-size: 15pt;
+    margin: 50px auto;
+}
+
+.button a {
+    color: #3333a9;
+}
+
+/* NavBar */
+.nav-bar {
+    margin: 100px auto;
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+}
+
+.navItem {
+    display: inline;
+    flex: 1 1; 
+    flex-shrink: 0; 
+    flex-wrap: nowrap; 
+    text-align: center; 
+    font-weight: 700; 
+    color: #0e1f4d; 
+    border-bottom: 2px solid #e9ecf7; 
+    padding: 15px 10px; 
+    white-space: nowrap; 
+    transition: .32s;
+    margin-left: 10%;
+}
+
+.navItemActive {
+    border-bottom: 2px solid #0e1f4d;
+}
+
+/* WorkPage */
+.content {
+    margin-top: -70px;
+}
+
+.templateCard {
+    width: 100%;
+    margin: 5px auto;
+    border-radius: 15px;
+    -webkit-box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    -moz-box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    text-decoration: none; color: #000;
+    font-weight: 700;
+    font-size: 14pt;
+}
+
+.searchInpt{
+    display: inline;
+    width: 260px;
+    height: 50px;
+    border-radius: 10px;
+    border: 1px solid rgba(142,148,177,.5);
+    margin: 0 0;
+}
+
+/* Staf user view and edit */
+.templateCard input {
+    border: 0;
+}
+
+.table {
+    width: 100%;
+    margin: 5px auto;
+    border-radius: 15px;
+    -webkit-box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    -moz-box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.2);
+    text-decoration: none; color: #000;
+    font-weight: 700;
+    font-size: 14pt;
+}
