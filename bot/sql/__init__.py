@@ -1,2 +1,2 @@
 from .BaseModel import BaseModel
-from .User import User, Messages
+from .User import *
