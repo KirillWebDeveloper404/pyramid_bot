@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+    <link rel="stylesheet" href="{% static 'css/work/main.css' %}">
+
+    <div class="mainPage">
+
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="templateCard">
+
+                <table class="table">
+                    <tbody style="width: 30vw;">
+                        <tr>
+                            <td>Название</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;" type="text" name="name" id="name" value="{{ tariff.name }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Ставка</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;"type="text" name="procent" id="procent" value="{{ tariff.procent }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Минимальный срок в днях(если срок фиксированный то 0)</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;"type="text" name="deadline" id="deadline" value="{{ tariff.deadline }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Время начала(в часах)</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;"type="text" name="start_time" id="start_time" value="{{ tariff.start_time }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Длительность(в часах)</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;"type="text" name="stop_time" id="stop_time" value="{{ tariff.end_time }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Минимальная сумма</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;"type="text" name="minimum" id="minimum" value="{{ tariff.minimum }}"></td>
+                        </tr>
+                        <tr>
+                            <td>Максимальная сумма</td>
+                            <td><input style="border-radius: 5px; border: #3333a9 solid 2px; width: 100%; height: auto;"type="text" name="maximum" id="maximum" value="{{ tariff.maximum }}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <a href="{% url 'main' 'tariffs' %}"><button class="button" type="button">Назад</button></a>
+            <button class="button" type="submit" name="delete" style="color: red; border-color: red;">Удалить</button>
+            <button class="button" type="submit">Сохранить</button>
+        </form>
+
+    </div>
+
+{% endblock main %}
