@@ -1,0 +1,4 @@
+aiogram==2.24
+APScheduler==3.10.0
+Django==4.1.6
+peewee==3.15.4
