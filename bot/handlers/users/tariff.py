@@ -8,16 +8,71 @@ from sql import User, Tariff, Invest
 from keyboards.default import main_kb
 
 
+@dp.message_handler(text='🧾 Тарифы')
+async def tariffs_desc(message: types.Message):
+    user = User.get(User.tg_id == message.from_user.id)
+    time_now = datetime.datetime.now().hour + int(user.time_zone)
+    if time_now < 0:
+        time_now -= 24
+
+    text = '1. Тариф минимальный "Start" \n'
+    text += '1.5% в день \n'
+    text += 'Минимум 5 дней \n'
+    text += 'Минимальный порог 300 руб \n'
+    text += 'Максимальный порог 300 000 руб \n'
+    text += 'Возврат % сразу \n'
+    text += 'P.S. Тело депозита по истечению минимального срока'
+    text += '\n'
+    text += '\n'
+    text += '2. Тариф оптимальный "Optimum" \n'
+    text += '1.3% в день \n'
+    text += 'Минимум 10 дней \n'
+    text += 'Минимальный порог 15 300 руб \n'
+    text += 'Максимальный порог 1 515 000 руб \n'
+    text += 'Возврат % сразу \n'
+    text += 'P.S. Тело депозита по истечению минимального срока'
+    text += '\n'
+    text += '\n'
+    text += '3. Тариф максимальный "All" \n'
+    text += '1.1% в день \n'
+    text += 'Минимум 15 дней \n'
+    text += 'Минимальный порог 30 000 руб \n'
+    text += 'Максимальный порог 3 000 000 руб \n'
+    text += 'Возврат % сразу \n'
+    text += 'P.S. Тело депозита по истечению минимального срока'
+    text += '\n'
+    text += '\n'
+
+    # if 22 <= time_now <= 24:
+    if True:
+        text += '4. Premium новинка "Lite money" \n'
+        text += 'Пока ты спишь \n'
+        text += '3% за ночь с 24:00 до 06:00 6 часов \n'
+        text += 'Минимальный порог 50 000 руб \n'
+        text += 'Максимальный порог 500 000 руб \n'
+        text += 'Возврат тела депозита 7:00 \n'
+        text += 'P.S. Тело депозита выплачивается вместе с %'
+
+    await message.answer(text)
+
+
 @dp.message_handler(text='💲 Инвестиции')
 @dp.message_handler(text='Назад', state='select_tariff')
 @dp.message_handler(text='Назад', state='buy_tariff')
 async def list_tariff(message: types.Message, state: FSMContext):
+    user = User.get(User.tg_id == message.from_user.id)
+    time_now = datetime.datetime.now().hour + int(user.time_zone)
     tariffs = Tariff().select()
     tariffs_list = [el for el in tariffs]
     kb = InlineKeyboardMarkup(row_width=1)
 
     for el in tariffs_list:
-        kb.add(InlineKeyboardButton(text=el.name, callback_data=el.id))
+        if el.start_time == '-1':
+            kb.add(InlineKeyboardButton(text=el.name, callback_data=el.id))
+        else:
+            start_time = int(el.start_time) - 2 if int(el.start_time) - 2 >= 0 else int(el.start_time) - 2 + 24
+            if start_time <= time_now < start_time+2:
+                kb.add(InlineKeyboardButton(text=el.name, callback_data=el.id))
 
     del_kb = await message.answer('loading', reply_markup=ReplyKeyboardRemove())
     await del_kb.delete()
