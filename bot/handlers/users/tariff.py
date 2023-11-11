@@ -79,7 +79,7 @@ async def list_tariff(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(state='select_tariff')
 async def select_tariff(c: types.CallbackQuery, state: FSMContext):
     tariff = Tariff.get(Tariff.id == float(c.data))
-    user = User.get(User.tg_id == c.message.from_user.id)
+    user = User.get(User.tg_id == c.from_user.id)
 
     time_now = datetime.datetime.now().hour + float(user.time_zone)
     start_time = float(tariff.start_time) - 3 if float(tariff.start_time) - 3 >= 0 else float(tariff.start_time) - 3 + 24
