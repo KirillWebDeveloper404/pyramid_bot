@@ -81,13 +81,14 @@ async def select_tariff(c: types.CallbackQuery, state: FSMContext):
     tariff = Tariff.get(Tariff.id == float(c.data))
     user = User.get(User.tg_id == c.from_user.id)
 
-    time_now = datetime.datetime.now().hour + int(user.time_zone)
-    start_time = int(tariff.start_time) - 3 if int(tariff.start_time) - 3 >= 0 else int(tariff.start_time) - 3 + 24
-    if time_now < start_time or time_now > start_time + 3:
-        await c.answer(f"Этот тариф можно купить только с {start_time}:00 до {start_time+3}:00")
-        await c.message.edit_text(tariff.get_info() + f"\n\nЭтот тариф можно купить только с {start_time}:00 до {start_time+3}:00")
-        await list_tariff(c.message, state)
-        return
+    if tariff.start_time != '-1':
+        time_now = datetime.datetime.now().hour + int(user.time_zone)
+        start_time = int(tariff.start_time) - 3 if int(tariff.start_time) - 3 >= 0 else int(tariff.start_time) - 3 + 24
+        if time_now < start_time or time_now > start_time + 3:
+            await c.answer(f"Этот тариф можно купить только с {start_time}:00 до {start_time+3}:00")
+            await c.message.edit_text(tariff.get_info() + f"\n\nЭтот тариф можно купить только с {start_time}:00 до {start_time+3}:00")
+            await list_tariff(c.message, state)
+            return
 
     kb = ReplyKeyboardMarkup(
         [
