@@ -6,13 +6,13 @@ from sql import History
 
 def send_invoice(amount: int, code: str) -> str:
     quickpay = Quickpay(
-                receiver="4100118436096814",
-                quickpay_form="shop",
-                targets="Sponsor this project",
-                paymentType="SB",
-                sum=amount,
-                label=code
-                )
+        receiver="4100118434485784",
+        quickpay_form="shop",
+        targets="Sponsor this project",
+        paymentType="SB",
+        sum=amount,
+        label=code
+    )
 
     return quickpay.redirected_url
 
@@ -38,3 +38,6 @@ def check_pay(code: str):
             return invoice
 
     return False
+
+
+

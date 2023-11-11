@@ -6,12 +6,13 @@ import datetime
 from loader import dp
 from sql import User, Tariff, Invest
 from keyboards.default import main_kb
+from utils import send_invoice, check_pay
 
 
 @dp.message_handler(text='🧾 Тарифы')
 async def tariffs_desc(message: types.Message):
     user = User.get(User.tg_id == message.from_user.id)
-    time_now = datetime.datetime.now().hour + int(user.time_zone)
+    time_now = datetime.datetime.now().hour + float(user.time_zone)
     if time_now < 0:
         time_now -= 24
 
@@ -45,7 +46,7 @@ async def tariffs_desc(message: types.Message):
 
     # if 22 <= time_now <= 24:
     if True:
-        text += '4. Premium новинка "Lite money" \n'
+        text += '4. Premium новинка "Night money" \n'
         text += 'Пока ты спишь \n'
         text += '3% за ночь с 24:00 до 06:00 6 часов \n'
         text += 'Минимальный порог 50 000 руб \n'
@@ -61,7 +62,7 @@ async def tariffs_desc(message: types.Message):
 @dp.message_handler(text='Назад', state='buy_tariff')
 async def list_tariff(message: types.Message, state: FSMContext):
     user = User.get(User.tg_id == message.from_user.id)
-    time_now = datetime.datetime.now().hour + int(user.time_zone)
+    time_now = datetime.datetime.now().hour + float(user.time_zone)
     tariffs = Tariff().select()
     tariffs_list = [el for el in tariffs]
     kb = InlineKeyboardMarkup(row_width=1)
@@ -70,7 +71,7 @@ async def list_tariff(message: types.Message, state: FSMContext):
         if el.start_time == '-1':
             kb.add(InlineKeyboardButton(text=el.name, callback_data=el.id))
         else:
-            start_time = int(el.start_time) - 2 if int(el.start_time) - 2 >= 0 else int(el.start_time) - 2 + 24
+            start_time = float(el.start_time) - 2 if float(el.start_time) - 2 >= 0 else float(el.start_time) - 2 + 24
             if start_time <= time_now < start_time+2:
                 kb.add(InlineKeyboardButton(text=el.name, callback_data=el.id))
 
@@ -84,7 +85,7 @@ async def list_tariff(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(state='select_tariff')
 async def select_tariff(c: types.CallbackQuery, state: FSMContext):
-    tariff = Tariff.get(Tariff.id == int(c.data))
+    tariff = Tariff.get(Tariff.id == float(c.data))
     kb = ReplyKeyboardMarkup(
         [
             [KeyboardButton('Купить этот тариф')],
@@ -115,17 +116,31 @@ async def buy_tariff(message: types.Message, state: FSMContext):
 async def select_sum(message: types.Message, state: FSMContext):
     try:
         data = await state.get_data()
-        data['sum'] = int(message.text)
+        data['sum'] = float(message.text)
         tariff = data['tariff']
         user = User.get(User.tg_id == message.from_user.id)
 
-        if int(message.text) > int(tariff.maximum) or int(message.text) < int(tariff.minimum):
+        text = f'Ваш вклад {float(message.text)}p\n'
+        text += f'Доходность {float(tariff.procent)}%\n'
+        text += f'Срок размещения {float(tariff.deadline)} дней \n' if tariff.deadline != '0' else f'Срок размещения {float(tariff.end_time)} часов \n'
+        if tariff.deadline != '0':
+            text += f'Сумма выплаты {str(float(message.text)*((1+float(tariff.procent)/100)**float(tariff.deadline))).split(".")[0]}\n\n'
+        else:
+            text += f'Сумма выплаты {str(float(message.text)*(1+float(tariff.procent)/100)).split(".")[0]}\n\n'
+        text += "Сейчас на эвашем балансе недостаточно средств\n"
+        text += "Пополнить баланс👇"
+
+        if float(message.text) > float(tariff.maximum) or float(message.text) < float(tariff.minimum):
             await message.answer("Ввыдете сумму в пределах лимита")
             await state.set_data(data)
             await state.set_state('select_sum')
             return
-        if int(user.balance) < int(message.text):
-            await message.answer("У вас на балансе недостаточно средств")
+        if float(user.balance) < float(message.text):
+            await message.answer(text, reply_markup=InlineKeyboardMarkup(row_width=1).add(
+                InlineKeyboardButton(text="Пополнить", url=send_invoice(amount=float(message.text)+5-float(user.balance),
+                                                                        code=user.tg_id)),
+                InlineKeyboardButton(text="Пополнил, оплатить тариф", callback_data='check_and_pay')
+            ))
             await state.set_data(data)
             await state.set_state('select_sum')
             return
@@ -137,7 +152,7 @@ async def select_sum(message: types.Message, state: FSMContext):
             ],
             resize_keyboard=True
         )
-        text = tariff.get_info(buy=True, summ=int(message.text))
+        text = tariff.get_info(buy=True, summ=float(message.text))
 
         await message.answer(text=text, reply_markup=kb)
         await state.set_data(data)
@@ -155,7 +170,7 @@ async def buy_tariff(message: types.Message, state: FSMContext):
     tariff = data['tariff']
     user = User.get(User.tg_id == message.from_user.id)
 
-    user.balance = int(user.balance) - data['sum']
+    user.balance = float(user.balance) - data['sum']
     user.save()
 
     invest = Invest()
@@ -163,16 +178,62 @@ async def buy_tariff(message: types.Message, state: FSMContext):
     invest.user = user.id
     invest.sum = f'{data["sum"]} 0'
     if tariff.start_time == '-1':
-        invest.deadline = (datetime.datetime.now() + datetime.timedelta(days=int(tariff.end_time))).strftime('%d.%m.%Y')
-        invest.apply_out = (datetime.datetime.now() + datetime.timedelta(days=int(tariff.deadline))).strftime('%d.%m.%Y')
+        invest.deadline = (datetime.datetime.now() + datetime.timedelta(days=float(tariff.end_time))).strftime('%d.%m.%Y')
+        invest.apply_out = (datetime.datetime.now() + datetime.timedelta(days=float(tariff.deadline))).strftime('%d.%m.%Y')
     else:
-        invest.deadline = (datetime.datetime.now() + datetime.timedelta(hours=int(tariff.end_time))).strftime(
+        invest.deadline = (datetime.datetime.now() + datetime.timedelta(hours=float(tariff.end_time))).strftime(
             '%d.%m.%Y')
-        invest.apply_out = int(tariff.start_time) + int(tariff.end_time) if (int(tariff.start_time) + int(tariff.end_time)) <= 24 else int(tariff.start_time) + int(tariff.end_time) - 24
+        invest.apply_out = float(tariff.start_time) + float(tariff.end_time) if (float(tariff.start_time) + float(tariff.end_time)) <= 24 else float(tariff.start_time) + float(tariff.end_time) - 24
 
     invest.procent = tariff.procent
     invest.save()
 
     await state.finish()
     await message.answer('Поздравляем! \nВы успешно инверстировали деньги, следить за статусом можно во вкладке '
+                         'Личный кабинет', reply_markup=main_kb)
+
+
+@dp.callback_query_handler(text='check_and_pay', state='select_sum')
+async def check_and_pay(c: types.CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    tariff = data['tariff']
+    user = User.get(User.tg_id == c.from_user.id)
+
+    invoice = check_pay(user.tg_id)
+    if invoice:
+        user.balance = float(user.balance) + float(invoice.money)
+        user.save()
+
+    if float(user.balance) < float(data['sum']):
+        await c.message.answer("Для покупки тарифа необходимо пополнить баланс", reply_markup=InlineKeyboardMarkup(
+            row_width=1).add(
+            InlineKeyboardButton(text="Пополнить",
+                                 url=send_invoice(amount=float(data['sum']) + 5 - float(user.balance),
+                                                  code=user.tg_id)),
+            InlineKeyboardButton(text="Пополнил, оплатить тариф", callback_data='check_and_pay')
+        ))
+        await state.set_data(data)
+        await state.set_state('select_sum')
+        return
+
+    user.balance = float(user.balance) - float(data['sum'])
+    user.save()
+
+    invest = Invest()
+    invest.name = tariff.name
+    invest.user = user.id
+    invest.sum = f'{data["sum"]} 0'
+    if tariff.start_time == '-1':
+        invest.deadline = (datetime.datetime.now() + datetime.timedelta(days=float(tariff.end_time))).strftime('%d.%m.%Y')
+        invest.apply_out = (datetime.datetime.now() + datetime.timedelta(days=float(tariff.deadline))).strftime('%d.%m.%Y')
+    else:
+        invest.deadline = (datetime.datetime.now() + datetime.timedelta(hours=float(tariff.end_time))).strftime(
+            '%d.%m.%Y')
+        invest.apply_out = float(tariff.start_time) + float(tariff.end_time) if (float(tariff.start_time) + float(tariff.end_time)) <= 24 else float(tariff.start_time) + float(tariff.end_time) - 24
+
+    invest.procent = tariff.procent
+    invest.save()
+
+    await state.finish()
+    await c.message.answer('Поздравляем! \nВы успешно инверстировали деньги, следить за статусом можно во вкладке '
                          'Личный кабинет', reply_markup=main_kb)

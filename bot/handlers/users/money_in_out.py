@@ -12,7 +12,7 @@ from utils import send_invoice, check_pay
 @dp.callback_query_handler(text='money_out')
 async def money_out(c: types.CallbackQuery, state: FSMContext):
     user = User.get(User.tg_id == c.from_user.id)
-    if int(user.balance) >= 100:
+    if float(user.balance) >= 100:
         await c.message.answer(f"Ваш баланс {user.balance}p\n"
                                "Напишите номер карты либо кошелька куда хотите вывести деньги")
         await state.set_state('sum_out')
@@ -38,7 +38,7 @@ async def sum_out(message: types.Message, state: FSMContext):
 
         await bot.send_message(
             chat_id=ADMINS[0],
-            text=f'Платёж \nСумма: {int(user.balance)} \nКомментарий: {user.tg_id}',
+            text=f'Платёж \nСумма: {float(user.balance)} \nКомментарий: {user.tg_id}',
             reply_markup=InlineKeyboardMarkup().add(
                 InlineKeyboardButton(text='Зачислить', callback_data=f'accept_{user.tg_id}_{message.text}'),
                 InlineKeyboardButton(text='Отклонить', callback_data=f'cancel_{user.tg_id}_{message.text}'),
@@ -46,7 +46,7 @@ async def sum_out(message: types.Message, state: FSMContext):
         )
 
     except Exception as e:
-        print(e)
+        prfloat(e)
         await message.answer("Неверный формат! Ведите только число.")
         await state.set_state('sum_balance')
 
@@ -62,7 +62,7 @@ async def add_balance(c: types.CallbackQuery, state: FSMContext):
 async def sum_balance(message: types.Message, state: FSMContext):
     try:
         user = User.get(User.tg_id == message.from_user.id)
-        sum = int(message.text)
+        sum = float(message.text)
         invoice_link = send_invoice(amount=sum, code=str(user.tg_id))
 
         await message.answer(f"💰 Пополнить баланс \n\nСумма: {sum}₽", reply_markup=InlineKeyboardMarkup(row_width=1).add(
@@ -83,7 +83,7 @@ async def check_pay_handler(c: types.CallbackQuery, state: FSMContext):
     if invoice:
         await c.message.delete()
         await state.finish()
-        user.balance = int(user.balance) + float(invoice.money)
+        user.balance = float(user.balance) + float(invoice.money)
         user.save()
         await c.message.answer("Ваш баланс успешно пополнен! \nПроверить баланс можно в разделе Личный кабинет")
     else:
@@ -98,16 +98,16 @@ async def check_pay_handler(c: types.CallbackQuery, state: FSMContext):
 #     if c.message.chat.id == ADMINS[0]:
 #         if 'accept' in c.data:
 #             user = User.get(User.tg_id == c.data.split('_')[1])
-#             user.balance = int(user.balance) + int(c.data.split('_')[2])
+#             user.balance = float(user.balance) + float(c.data.split('_')[2])
 #             user.save()
 #
 #         if user.referal != '0':
 #             ref = User.get(User.tg_id == user.referal)
-#             ref.balance = str(int(ref.balance) + int(c.data.split('_')[2])*(1+2.5/100)).split('.')[0]
+#             ref.balance = str(float(ref.balance) + float(c.data.split('_')[2])*(1+2.5/100)).split('.')[0]
 #             ref.save()
 #             if ref.referal != '0':
 #                 ref1 = User.get(User.tg_id == ref.referal)
-#                 ref1.balance = str(int(ref1.balance) + int(c.data.split('_')[2])*(1+1/100)).split('.')[0]
+#                 ref1.balance = str(float(ref1.balance) + float(c.data.split('_')[2])*(1+1/100)).split('.')[0]
 #                 ref1.save()
 #
 #             history = History()

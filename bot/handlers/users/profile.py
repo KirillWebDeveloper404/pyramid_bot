@@ -59,10 +59,10 @@ async def percent_out(c: types.CallbackQuery, state: FSMContext):
     tariff = Invest.get(Invest.id == c.data)
     percent = tariff.sum.split(' ')[1]
 
-    tariff.sum = f'{int(tariff.sum.split(" ")[0])} 0'
+    tariff.sum = f'{float(tariff.sum.split(" ")[0])} 0'
     tariff.save()
 
-    user.balance = int(user.balance) + int(percent)
+    user.balance = float(user.balance) + float(percent)
     user.save()
 
     await c.message.answer(f"{percent}p успешно переведены на ваш баланс.\n"
