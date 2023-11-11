@@ -38,6 +38,7 @@ class Invest(models.Model):
 
 
 class History(models.Model):
+    pay_id = models.TextField()
     money = models.TextField()
     user = models.TextField()
     in_out = models.BooleanField()

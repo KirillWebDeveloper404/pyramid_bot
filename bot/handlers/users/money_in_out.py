@@ -6,6 +6,7 @@ from loader import dp, bot
 from sql import User, History, MoneyOut
 from data.config import ADMINS
 from keyboards.default import main_kb
+from utils import send_invoice, check_pay
 
 
 @dp.callback_query_handler(text='money_out')
@@ -60,77 +61,72 @@ async def add_balance(c: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(state='sum_balance')
 async def sum_balance(message: types.Message, state: FSMContext):
     try:
-        user = User(User.tg_id == message.from_user.id)
+        user = User.get(User.tg_id == message.from_user.id)
         sum = int(message.text)
+        invoice_link = send_invoice(amount=sum, code=str(user.tg_id))
 
-        await message.answer(f"Перейдите по ссылке и пополните баланс.\n"
-                             "Затем нажмите проверить\n"
-                             "В течение суток мы проверим ваш платёж и он будет зачислен на ваш баланс",
-                             reply_markup=InlineKeyboardMarkup().add(
-                                 InlineKeyboardButton(text='Проверить платёж', callback_data='check_pay'
-                                                      )
-                                            )
-                             )
-        await state.set_data({'sum': sum})
+        await message.answer(f"💰 Пополнить баланс \n\nСумма: {sum}₽", reply_markup=InlineKeyboardMarkup(row_width=1).add(
+            InlineKeyboardButton(text='Перейти к оплате', url=invoice_link),
+            InlineKeyboardButton(text='Проверить оплату', callback_data='check_pay')
+        ))
+
         await state.set_state('check_pay')
-
     except:
         await message.answer("Неверный формат! Ведите только число.")
         await state.set_state('sum_balance')
 
 
-@dp.callback_query_handler(text='check_pay', state='check_pay')
-async def check_pay(c: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    await bot.send_message(
-        chat_id=ADMINS[0],
-        text=f'Платёж \nСумма: {int(data["sum"])} \nКомментарий: {c.from_user.id}',
-        reply_markup=InlineKeyboardMarkup().add(
-            InlineKeyboardButton(text='Зачислить', callback_data=f'accept_{c.from_user.id}_{data["sum"]}'),
-            InlineKeyboardButton(text='Отклонить', callback_data=f'cancel_{c.from_user.id}_{data["sum"]}'),
-        )
-    )
-    await c.message.delete()
-    await c.message.answer("Скоро мы проверим пополнение и зачислим деньги", reply_markup=main_kb)
-    await state.finish()
-
+@dp.callback_query_handler(text='check_pay', state='*')
+async def check_pay_handler(c: types.CallbackQuery, state: FSMContext):
+    user = User.get(User.tg_id == c.from_user.id)
+    invoice = check_pay(str(user.tg_id))
+    if invoice:
+        await c.message.delete()
+        await state.finish()
+        user.balance = int(user.balance) + float(invoice.money)
+        user.save()
+        await c.message.answer("Ваш баланс успешно пополнен! \nПроверить баланс можно в разделе Личный кабинет")
+    else:
+        await c.message.answer('Мы не нашли ваш платеж. \nВозможно он еще в обработке, попробуйте нажать "Проверить" '
+                               'ещё раз.\n'
+                               'Если не помогает обратитесь к администратору')
 
 
 # Обязательно последним в списке!!!
-@dp.callback_query_handler()
-async def check_pay(c: types.CallbackQuery):
-    if c.message.chat.id == ADMINS[0]:
-        if 'accept' in c.data:
-            user = User.get(User.tg_id == c.data.split('_')[1])
-            user.balance = int(user.balance) + int(c.data.split('_')[2])
-            user.save()
-
-        if user.referal != '0':
-            ref = User.get(User.tg_id == user.referal)
-            ref.balance = str(int(ref.balance) + int(c.data.split('_')[2])*(1+2.5/100)).split('.')[0]
-            ref.save()
-            if ref.referal != '0':
-                ref1 = User.get(User.tg_id == ref.referal)
-                ref1.balance = str(int(ref1.balance) + int(c.data.split('_')[2])*(1+1/100)).split('.')[0]
-                ref1.save()
-
-            history = History()
-            history.user = user.tg_id
-            history.money = c.data.split('_')[2]
-            history.in_out = True
-            history.save()
-
-            await bot.send_message(
-                chat_id=c.data.split('_')[1],
-                text=f'Платёж на сумму {c.data.split("_")[2]} подтверждён, деньги зачислены  на баланс.'
-            )
-
-            await c.message.delete()
-
-        else:
-            await bot.send_message(
-                chat_id=c.data.split('_')[1],
-                text=f'Платёж на сумму {c.data.split("_")[2]} отклонён, если считаете что это ошибка обратитесь в поддержку.'
-            )
-            await c.message.delete()
-# Обязательно последним в списке!!!
+# @dp.callback_query_handler()
+# async def check_pay(c: types.CallbackQuery):
+#     if c.message.chat.id == ADMINS[0]:
+#         if 'accept' in c.data:
+#             user = User.get(User.tg_id == c.data.split('_')[1])
+#             user.balance = int(user.balance) + int(c.data.split('_')[2])
+#             user.save()
+#
+#         if user.referal != '0':
+#             ref = User.get(User.tg_id == user.referal)
+#             ref.balance = str(int(ref.balance) + int(c.data.split('_')[2])*(1+2.5/100)).split('.')[0]
+#             ref.save()
+#             if ref.referal != '0':
+#                 ref1 = User.get(User.tg_id == ref.referal)
+#                 ref1.balance = str(int(ref1.balance) + int(c.data.split('_')[2])*(1+1/100)).split('.')[0]
+#                 ref1.save()
+#
+#             history = History()
+#             history.user = user.tg_id
+#             history.money = c.data.split('_')[2]
+#             history.in_out = True
+#             history.save()
+#
+#             await bot.send_message(
+#                 chat_id=c.data.split('_')[1],
+#                 text=f'Платёж на сумму {c.data.split("_")[2]} подтверждён, деньги зачислены  на баланс.'
+#             )
+#
+#             await c.message.delete()
+#
+#         else:
+#             await bot.send_message(
+#                 chat_id=c.data.split('_')[1],
+#                 text=f'Платёж на сумму {c.data.split("_")[2]} отклонён, если считаете что это ошибка обратитесь в поддержку.'
+#             )
+#             await c.message.delete()
+# # Обязательно последним в списке!!!

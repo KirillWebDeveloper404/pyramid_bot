@@ -119,7 +119,7 @@ async def select_sum(message: types.Message, state: FSMContext):
         tariff = data['tariff']
         user = User.get(User.tg_id == message.from_user.id)
 
-        if int(tariff.maximum) < int(message.text) < int(tariff.minimum):
+        if int(message.text) > int(tariff.maximum) or int(message.text) < int(tariff.minimum):
             await message.answer("Ввыдете сумму в пределах лимита")
             await state.set_data(data)
             await state.set_state('select_sum')

@@ -62,8 +62,9 @@ class Invest(BaseModel):
 
 
 class History(BaseModel):
-    money = TextField()
+    pay_id = TextField()
     user = TextField()
+    money = TextField()
     in_out = BooleanField()
 
     class Meta:
