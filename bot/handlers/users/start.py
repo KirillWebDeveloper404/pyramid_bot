@@ -15,10 +15,9 @@ async def bot_start(message: types.Message, state: FSMContext):
     await state.finish()
     try:
         user = User.get(User.tg_id == message.from_user.id)
-        rep_kb = await message.answer("Бот инвестиции",
-                             reply_markup=main_kb)
-        await rep_kb.delete()
         await message.answer("Бот инвестиции",
+                             reply_markup=main_kb)
+        await message.answer("Связаться с нами",
                              reply_markup=InlineKeyboardMarkup(row_width=1).add(
                                  InlineKeyboardButton(text='⚙️ Поддержка', url='https://t.me/FairMoney2023'),
                                  InlineKeyboardButton(text='⚙️ Поддержка(запасная ссылка)', url='https://t.me/FairMoney23')
