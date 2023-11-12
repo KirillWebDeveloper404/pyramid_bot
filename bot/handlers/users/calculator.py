@@ -80,7 +80,6 @@ async def calculate(message: types.Message, state: FSMContext):
         await state.set_data(data)
         return
     percents = float(summ)*((1 + float(tariff.procent)/100)**int(message.text) - 1)
-    print(percents)
     if percents >= float(summ):
         await message.answer(f"Слишком большой срок! \nМгновенная выплата % не может превышать тело депозита")
         await message.answer("На какой срок хотите инвестировать \nУкажите число дней")
