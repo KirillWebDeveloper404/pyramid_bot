@@ -41,7 +41,7 @@ async def select_tariff(c: types.CallbackQuery, state: FSMContext):
 async def calculate_sum(message: types.Message, state: FSMContext):
     data = await state.get_data()
     tariff = data['tariff']
-    try:
+    if True:
         if int(tariff.minimum) <= int(message.text) <= int(tariff.maximum):
             data['sum'] = int(message.text)
             await state.set_data(data)
@@ -59,7 +59,7 @@ async def calculate_sum(message: types.Message, state: FSMContext):
             await state.set_data(data)
             await state.set_state('calculate_sum')
             return
-    except Exception as e:
+    else:
         await message.answer("Неверный формат! \nВведите только число")
         await message.answer("Какую сумму вы хотите рассчитать?")
 
@@ -79,13 +79,14 @@ async def calculate(message: types.Message, state: FSMContext):
         await state.set_state('select_deadline')
         await state.set_data(data)
         return
-    percents = float(summ)*((1 + float(tariff.procent)/100)**int(message.text) - 1)
-    if percents >= float(summ):
-        await message.answer(f"Слишком большой срок! \nМгновенная выплата % не может превышать тело депозита")
-        await message.answer("На какой срок хотите инвестировать \nУкажите число дней")
-        await state.set_state('select_deadline')
-        await state.set_data(data)
-        return
+    if tariff.deadline != '0':
+        percents = float(summ)*((1 + float(tariff.procent)/100)**int(message.text) - 1)
+        if percents >= float(summ):
+            await message.answer(f"Слишком большой срок! \nМгновенная выплата % не может превышать тело депозита")
+            await message.answer("На какой срок хотите инвестировать \nУкажите число дней")
+            await state.set_state('select_deadline')
+            await state.set_data(data)
+            return
 
     text = "Ваш доход составит: \n"
     text += f'Тариф {tariff.name}\n'
