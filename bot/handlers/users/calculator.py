@@ -112,6 +112,8 @@ async def calculate(message: types.Message, state: FSMContext):
             InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
         ))
     else:
+        tariff.start_time = 24
+        tariff.save()
         text += '\n\nТариф доступен к покупке за 3 часа до начала его действия'
         await message.answer(text)
 
