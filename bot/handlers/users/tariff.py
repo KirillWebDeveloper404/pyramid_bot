@@ -48,7 +48,7 @@ async def tariffs_desc(message: types.Message):
     if True:
         text += '4. Premium новинка "Night money" \n'
         text += 'Пока ты спишь \n'
-        text += '3% за ночь с 24:00 до 06:00 6 часов \n'
+        text += '3% за ночь с 24:00 до 06:00 \n'
         text += 'Минимальный порог 50 000 руб \n'
         text += 'Максимальный порог 500 000 руб \n'
         text += 'Возврат тела депозита 7:00 \n'
