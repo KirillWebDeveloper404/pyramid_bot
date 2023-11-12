@@ -20,8 +20,8 @@ async def bot_start(message: types.Message, state: FSMContext):
         rep_kb.delete()
         await message.answer("Бот инвестиции",
                              reply_markup=InlineKeyboardMarkup(row_width=1).add(
-                                 InlineKeyboardButton(text='⚙️ Поддержка', url='https://t.me/FairMany2023'),
-                                 InlineKeyboardButton(text='⚙️ Поддержка(запасная ссылка)', url='https://t.me/FairMany23')
+                                 InlineKeyboardButton(text='⚙️ Поддержка', url='https://t.me/FairMoney2023'),
+                                 InlineKeyboardButton(text='⚙️ Поддержка(запасная ссылка)', url='https://t.me/FairMoney23')
                              ))
 
     except User.DoesNotExist:
