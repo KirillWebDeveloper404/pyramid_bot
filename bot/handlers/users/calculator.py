@@ -107,7 +107,7 @@ async def calculate(message: types.Message, state: FSMContext):
         await message.answer(text, reply_markup=InlineKeyboardMarkup().add(
             InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
         ))
-    elif tariff.deadline != 0:
+    elif tariff.deadline != '0':
         await message.answer(text, reply_markup=InlineKeyboardMarkup().add(
             InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
         ))
