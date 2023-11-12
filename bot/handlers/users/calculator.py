@@ -98,7 +98,7 @@ async def calculate(message: types.Message, state: FSMContext):
         text += f'Вернём тело депозита через {int(message.text)} дней\n'
         text += "Тело депозита возвращается по истечению срока инвестиции"
     else:
-        text += f'Действует c {tariff.start_time}:00 до {f"{int(tariff.start_time) + int(tariff.end_time)}:00 часов" if (int(tariff.start_time) + int(tariff.end_time)) <= 24 else f"{int(tariff.start_time) + int(tariff.end_time) - 24} часов следующего дня"}\n' if tariff.start_time != '-1' else ' '
+        text += f'Действует c {tariff.start_time}:00 до {f"{int(tariff.start_time) + int(tariff.end_time)}:00 часов" if (int(tariff.start_time) + int(tariff.end_time)) <= 24 else f"{int(tariff.start_time) + int(tariff.end_time) - 24}:00 часов следующего дня"}\n' if tariff.start_time != '-1' else ' '
         text += f'Сумма выплаты {str(float(summ)*(1+float(tariff.procent)/100)).split(".")[0]}\n\n'
         text += "Тело депозита возвращается вместе с % по истечению срока инвестиции"
 
@@ -112,8 +112,6 @@ async def calculate(message: types.Message, state: FSMContext):
             InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
         ))
     else:
-        tariff.start_time = 24
-        tariff.save()
         text += '\n\nТариф доступен к покупке за 3 часа до начала его действия'
         await message.answer(text)
 
