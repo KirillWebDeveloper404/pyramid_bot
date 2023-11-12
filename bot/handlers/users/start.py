@@ -14,7 +14,7 @@ async def bot_start(message: types.Message, state: FSMContext):
     await state.finish()
     try:
         user = User.get(User.tg_id == message.from_user.id)
-        await message.answer("Бот инвестиции \n\n⚙️ [Поддержка](https://t.me/kirill46)",
+        await message.answer("Бот инвестиции \n\n⚙️ [Поддержка](hhttps://t.me/FairMany2023)",
                              reply_markup=main_kb,
                              parse_mode='Markdownv2')
 

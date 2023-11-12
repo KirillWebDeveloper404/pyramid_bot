@@ -52,7 +52,7 @@ class Invest(BaseModel):
         text = f'Тариф {self.name}\n\n'
         text += f'Закончится: {self.deadline}\n'
         text += f'Можно снять проценты: {self.apply_out}\n\n' if "." in self.apply_out else ''
-        text += f'Сумма(депозит+проценты): {int(sum[0])+int(sum[1])}p\n'
+        text += f'Сумма(депозит+проценты): {float(sum[0])+float(sum[1])}p\n'
         text += f'Из них проценты: {sum[1]}p\n'
         text += f'Ставка: {self.procent}%\n'
         return text
