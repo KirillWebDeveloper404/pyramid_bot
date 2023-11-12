@@ -1,4 +1,5 @@
 from aiogram import types
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.storage import FSMContext
 import datetime
@@ -14,9 +15,14 @@ async def bot_start(message: types.Message, state: FSMContext):
     await state.finish()
     try:
         user = User.get(User.tg_id == message.from_user.id)
-        await message.answer("Бот инвестиции \n\n⚙️ [Поддержка](https://t.me/FairMany2023)\n\n⚙️ [Поддержка](https://t.me/FairMany23)",
-                             reply_markup=main_kb,
-                             parse_mode='Markdownv2')
+        rep_kb = await message.answer("Бот инвестиции",
+                             reply_markup=main_kb)
+        rep_kb.delete()
+        await message.answer("Бот инвестиции",
+                             reply_markup=InlineKeyboardMarkup(row_width=1).add(
+                                 InlineKeyboardButton(text='⚙️ Поддержка', url='https://t.me/FairMany2023')
+                                 InlineKeyboardButton(text='⚙️ Поддержка(запасная ссылка)', url='https://t.me/FairMany23')
+                             ))
 
     except User.DoesNotExist:
         user = User()
