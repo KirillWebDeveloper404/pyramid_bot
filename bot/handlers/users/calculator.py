@@ -10,7 +10,7 @@ from utils import send_invoice, check_pay
 
 
 @dp.message_handler(text='📠 Калькулятор')
-@dp.message_handler(text='💲 Инвестиции')
+@dp.message_handler(text='💲 Инвестировать')
 @dp.message_handler(text='Назад', state='select_tariff')
 @dp.message_handler(text='Назад', state='buy_tariff')
 async def calculator(message: types.Message, state: FSMContext):
