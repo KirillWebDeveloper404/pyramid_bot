@@ -69,6 +69,7 @@ async def calculate_sum(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state='select_deadline')
 async def calculate(message: types.Message, state: FSMContext):
+    user = User.get(User.tg_id == message.from_user.id)
     data = await state.get_data()
     tariff = data['tariff']
     summ = data['sum']
@@ -100,9 +101,19 @@ async def calculate(message: types.Message, state: FSMContext):
         text += f'Действует c {tariff.start_time}:00 до {f"{int(tariff.start_time) + int(tariff.end_time)}:00 часов" if (int(tariff.start_time) + int(tariff.end_time)) <= 24 else f"{int(tariff.start_time) + int(tariff.end_time) - 24} часов следующего дня"}\n' if tariff.start_time != '-1' else ' '
         text += f'Сумма выплаты {str(float(summ)*(1+float(tariff.procent)/100)).split(".")[0]}\n\n'
         text += "Тело депозита возвращается вместе с % по истечению срока инвестиции"
-    await message.answer(text, reply_markup=InlineKeyboardMarkup().add(
-        InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
-    ))
+
+    if tariff.deadline == '0' and \
+            int(tariff.start_time)-3 <= datetime.datetime.now().hour + int(user.time_zone) < int(tariff.start_time):
+        await message.answer(text, reply_markup=InlineKeyboardMarkup().add(
+            InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
+        ))
+    elif tariff.deadline != 0:
+        await message.answer(text, reply_markup=InlineKeyboardMarkup().add(
+            InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
+        ))
+    else:
+        text += '\n\n Тариф доступен к покупке за 3 часа до начала его действия'
+        await message.answer(text)
 
     data['deadline'] = int(message.text)
     await state.set_data(data)
