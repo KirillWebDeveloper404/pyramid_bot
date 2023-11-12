@@ -50,11 +50,8 @@ class Invest(BaseModel):
     def get_info(self) -> str:
         sum = self.sum.split(" ")
         text = f'Тариф {self.name}\n\n'
-        text += f'Закончится: {self.deadline}\n'
-        text += f'Можно снять проценты: {self.apply_out}\n\n' if "." in self.apply_out else ''
-        text += f'Сумма(депозит+проценты): {float(sum[0])+float(sum[1])}p\n'
-        text += f'Из них проценты: {sum[1]}p\n'
-        text += f'Ставка: {self.procent}%\n'
+        text += f'Депозит: {float(sum[0])+float(sum[1])}p\n'
+        text += f'Вернем на баланс: {self.deadline}\n'
         return text
 
     class Meta:

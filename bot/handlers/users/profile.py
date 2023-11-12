@@ -40,15 +40,7 @@ async def my_tariff(c: types.CallbackQuery, state: FSMContext):
                                reply_markup=ReplyKeyboardMarkup([[KeyboardButton("Главное меню")]], resize_keyboard=True))
     for tariff in tariffs:
         text = tariff.get_info()
-        try:
-            if datetime.datetime.now() >= datetime.datetime.strptime(tariff.apply_out, '%d.%m.%Y'):
-                kb = InlineKeyboardMarkup()
-                kb.add(InlineKeyboardButton(text='Снять проценты', callback_data=f'{tariff.id}'))
-                await c.message.answer(text, reply_markup=kb)
-            else:
-                await c.message.answer(text)
-        except:
-            await c.message.answer(text)
+        await c.message.answer(text)
     else:
         await state.set_state('percent_out')
 

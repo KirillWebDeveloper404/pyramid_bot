@@ -6,6 +6,7 @@ import middlewares, filters, handlers
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 from utils import add_percent, add_percent_short_tariff
+from data.config import DEBUG
 
 
 async def check_msg():
@@ -23,9 +24,10 @@ async def on_startup(dispatcher):
     # Устанавливаем дефолтные команды
     await set_default_commands(dispatcher)
 
-    scheduler.add_job(check_msg, "interval", seconds=10)
-    scheduler.add_job(add_percent, "cron", hour=10, minute=0)
-    scheduler.add_job(add_percent_short_tariff, "interval", hours=1)
+    if not DEBUG:
+        scheduler.add_job(check_msg, "interval", seconds=10)
+        scheduler.add_job(add_percent, "cron", hour=10, minute=0)
+        scheduler.add_job(add_percent_short_tariff, "interval", hours=1)
 
 
 if __name__ == '__main__':
