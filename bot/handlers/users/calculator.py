@@ -41,7 +41,7 @@ async def select_tariff(c: types.CallbackQuery, state: FSMContext):
 async def calculate_sum(message: types.Message, state: FSMContext):
     data = await state.get_data()
     tariff = data['tariff']
-    if True:
+    try:
         if int(tariff.minimum) <= int(message.text) <= int(tariff.maximum):
             data['sum'] = int(message.text)
             await state.set_data(data)
@@ -59,7 +59,7 @@ async def calculate_sum(message: types.Message, state: FSMContext):
             await state.set_data(data)
             await state.set_state('calculate_sum')
             return
-    else:
+    except:
         await message.answer("Неверный формат! \nВведите только число")
         await message.answer("Какую сумму вы хотите рассчитать?")
 
@@ -81,8 +81,8 @@ async def calculate(message: types.Message, state: FSMContext):
         return
     if tariff.deadline != '0':
         percents = float(summ)*((1 + float(tariff.procent)/100)**int(message.text) - 1)
-        if percents >= float(summ):
-            await message.answer(f"Слишком большой срок! \nМгновенная выплата % не может превышать тело депозита")
+        if percents >= float(summ)*0.3:
+            await message.answer(f"Слишком большой срок! \nМгновенная выплата % не может превышать 30% от тела депозита")
             await message.answer("На какой срок хотите инвестировать \nУкажите число дней")
             await state.set_state('select_deadline')
             await state.set_data(data)
@@ -91,16 +91,15 @@ async def calculate(message: types.Message, state: FSMContext):
     text = "Ваш доход составит: \n"
     text += f'Тариф {tariff.name}\n'
     if tariff.deadline != '0':
-        text += f'  Вложите {float(summ)}p\n'
-        text += f'  Получите {str(float(summ)*((1+float(tariff.procent)/100)**float(message.text))).split(".")[0]}p\n'
-        text += f'  Мгновенная выплата % {str(float(summ)*((1+float(tariff.procent)/100)**float(message.text)-1)).split(".")[0]}p\n\n '
-        text += f'  Вернём тело депозита через {int(message.text)} дней\n'
+        text += f'Вложите {float(summ)}p\n'
+        text += f'Получите {str(float(summ)*((1+float(tariff.procent)/100)**float(message.text))).split(".")[0]}p\n'
+        text += f'Мгновенная выплата % {str(float(summ)*((1+float(tariff.procent)/100)**float(message.text)-1)).split(".")[0]}p\n\n '
+        text += f'Вернём тело депозита через {int(message.text)} дней\n'
         text += "Тело депозита возвращается по истечению срока инвестиции"
     else:
-        text += f'  Действует c {tariff.start_time}:00 до {f"{int(tariff.start_time) + int(tariff.end_time)}:00 часов" if (int(tariff.start_time) + int(tariff.end_time)) <= 24 else f"{int(tariff.start_time) + int(tariff.end_time) - 24} часов следующего дня"}\n' if tariff.start_time != '-1' else ' '
+        text += f'Действует c {tariff.start_time}:00 до {f"{int(tariff.start_time) + int(tariff.end_time)}:00 часов" if (int(tariff.start_time) + int(tariff.end_time)) <= 24 else f"{int(tariff.start_time) + int(tariff.end_time) - 24} часов следующего дня"}\n' if tariff.start_time != '-1' else ' '
         text += f'Сумма выплаты {str(float(summ)*(1+float(tariff.procent)/100)).split(".")[0]}\n\n'
-        text += f'  Мгновенная выплата % {str(float(summ)*float(tariff.procent)/100).split(".")[0]}p\n'
-        text += "Тело депозита возвращается по истечению срока инвестиции"
+        text += "Тело депозита возвращается вместе с % по истечению срока инвестиции"
     await message.answer(text, reply_markup=InlineKeyboardMarkup().add(
         InlineKeyboardButton(text='Купить этот тариф', callback_data='buy_tariff')
     ))
@@ -130,8 +129,7 @@ async def select_sum(c: types.CallbackQuery, state: FSMContext):
         text += "Тело депозита возвращается по истечению срока инвестиции"
     else:
         text += f'Сумма выплаты {str(float(summ)*(1+float(tariff.procent)/100)).split(".")[0]}\n\n'
-        text += f'  Мгновенная выплата % {str(float(summ)*float(tariff.procent)/100).split(".")[0]}p\n'
-        text += "Тело депозита возвращается по истечению срока инвестиции"
+        text += "Тело депозита возвращается вместе с % по истечению срока инвестиции"
 
     if float(user.balance) < float(summ):
         text += "Сейчас на эвашем балансе недостаточно средств\n"
@@ -166,9 +164,7 @@ async def buy_tariff(message: types.Message, state: FSMContext):
     user = User.get(User.tg_id == message.from_user.id)
 
     user.balance = float(user.balance) - float(data['sum'])
-    if tariff.deadline == '0':
-        user.balance = (float(user.balance) + float(data['sum']) * (float(tariff.procent) / 100)).split(".")[0]
-    else:
+    if tariff.deadline != '0':
         user.balance = str(float(user.balance) + float(data['sum']) * (
                     (1 + float(tariff.procent) / 100) ** int(data['deadline']) - 1)).split(".")[0]
     user.save()
@@ -176,7 +172,10 @@ async def buy_tariff(message: types.Message, state: FSMContext):
     invest = Invest()
     invest.name = tariff.name
     invest.user = user.id
-    invest.sum = f'{data["sum"]} 0'
+    if tariff.deadline == '0':
+        invest.sum = str(float(user.balance) + float(data['sum']) * (1 + float(tariff.procent) / 100)).split(".")[0]
+    else:
+        invest.sum = f'{data["sum"]} 0'
     if tariff.start_time == '-1':
         invest.deadline = (datetime.datetime.now() + datetime.timedelta(days=float(data['deadline']))).strftime('%d.%m.%Y')
         invest.apply_out = datetime.datetime.now().strftime('%d.%m.%Y')
@@ -217,16 +216,17 @@ async def check_and_pay(c: types.CallbackQuery, state: FSMContext):
         return
 
     user.balance = float(user.balance) - float(data['sum'])
-    if tariff.deadline == '0':
-        user.balance = (float(user.balance) + float(data['sum']) * (float(tariff.procent) / 100)).split(".")[0]
-    else:
+    if tariff.deadline != '0':
         user.balance = str(float(user.balance) + float(data['sum']) * (
                     (1 + float(tariff.procent) / 100) ** int(data['deadline']) - 1)).split(".")[0]
 
     invest = Invest()
     invest.name = tariff.name
     invest.user = user.id
-    invest.sum = f'{data["sum"]} 0'
+    if tariff.deadline == '0':
+        invest.sum = str(float(user.balance) + float(data['sum']) * (1 + float(tariff.procent) / 100)).split(".")[0]
+    else:
+        invest.sum = f'{data["sum"]} 0'
     if tariff.start_time == '-1':
         invest.deadline = (datetime.datetime.now() + datetime.timedelta(days=float(data['deadline']))).strftime('%d.%m.%Y')
         invest.apply_out = datetime.datetime.now().strftime('%d.%m.%Y')

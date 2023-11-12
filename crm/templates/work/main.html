@@ -6,14 +6,11 @@
 
     <div class="mainPage">
 
-        <div class="nav-bar">
+        <div class="nav_bar" style="margin: 100px auto; width: 100%; display: block; overflow-x: auto;">
             <ul style="white-space:nowrap; overflow-x: auto; height: 60px;">
                 <li class="navItem" id="manage" style="margin-left: -50px;"><a href="{% url 'main' 'manage' %}" style="color: #0e1f4d;">Управление персоналом</a></li>
                 <li class="navItem" id="users"><a href="{% url 'main' 'users' %}" style="color: #0e1f4d;">Пользователи</a></li>
                 <li class="navItem" id="push"><a href="{% url 'main' 'push' %}" style="color: #0e1f4d;">Рассылки</a></li>
-            </ul>
-            <ul style="white-space:nowrap; overflow-x: auto; height: 60px;">
-                <li class="navItem" id="tariffs"><a href="{% url 'main' 'tariffs' %}" style="color: #0e1f4d;">Тарифы</a></li>
                 <li class="navItem" id="history"><a href="{% url 'main' 'history' %}" style="color: #0e1f4d;">История платежей</a></li>
                 <li class="navItem" id="out"><a href="{% url 'main' 'out' %}" style="color: #0e1f4d;">Заявки на вывод</a></li>
             </ul>

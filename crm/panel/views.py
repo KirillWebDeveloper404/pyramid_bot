@@ -14,9 +14,9 @@ def main(req, page=None):
             users_list = User_tg.objects.all()
             return render(req, 'work/main.html', {'page': page, 'users': users_list})
 
-        if page == 'tariffs':
-            tariffs_list = Tariff.objects.all()
-            return render(req, 'work/main.html', {'page': page, 'tariffs': tariffs_list})
+        # if page == 'tariffs':
+        #     tariffs_list = Tariff.objects.all()
+        #     return render(req, 'work/main.html', {'page': page, 'tariffs': tariffs_list})
 
         if page == 'history':
             history_list = History.objects.all()
