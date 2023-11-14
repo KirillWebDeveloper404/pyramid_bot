@@ -12,5 +12,5 @@ async def ref(message: types.Message):
     text = f"▪️ Вас пригласил: {user.referal if user.referal else 'никто'}\n"
     text += f"▪️ Партнеров: {len(refs)-1} чел \n\n"
     text += "🌐 Ваша реферальная ссылка:\n"
-    text += f"https://t.me/TestPyTeIegramBot?start={user.tg_id}"
+    text += f"https://t.me/Fair_money_pay_bot?start={user.tg_id}"
     await message.answer(text)

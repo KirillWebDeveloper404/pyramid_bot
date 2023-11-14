@@ -5,12 +5,13 @@ from sql import History
 
 
 def send_invoice(amount: int, code: str) -> str:
+    price = amount
     quickpay = Quickpay(
         receiver="4100118434485784",
         quickpay_form="shop",
         targets="Sponsor this project",
         paymentType="SB",
-        sum=amount,
+        sum=price,
         label=code
     )
 
@@ -33,7 +34,7 @@ def check_pay(code: str):
             invoice.user = code
             invoice.in_out = True
             invoice.pay_id = operation.operation_id
-            invoice.money = operation.amount
+            invoice.money = (operation.amount/97) * 100
             invoice.save()
             return invoice
 
