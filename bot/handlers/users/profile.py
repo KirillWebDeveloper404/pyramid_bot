@@ -12,8 +12,7 @@ from keyboards.default import main_kb
 @dp.message_handler(text='👤 Личный кабинет')
 async def profile(message: types.Message, state: FSMContext):
     user = User.get(User.tg_id == message.from_user.id)
-    text = f'👤 Личный кабинет: \n\n'
-    text += f'Ваш ID: {message.from_user.id} \n'
+    text = f'Ваш ID: {message.from_user.id} \n'
     text += f'Баланс: {user.balance} ₽'
 
     kb = InlineKeyboardMarkup(row_width=2)
@@ -21,9 +20,11 @@ async def profile(message: types.Message, state: FSMContext):
     kb.add(InlineKeyboardButton(text='Пополнить', callback_data='add_balance'),
            InlineKeyboardButton(text='Вывести', callback_data='money_out'))
 
-    del_kb = await message.answer('loading', reply_markup=ReplyKeyboardRemove())
-    await del_kb.delete()
-
+    await message.answer('👤 Личный кабинет: \n\n', reply_markup=ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton('Главное меню')]
+        ], resize_keyboard=True
+    ))
     await message.answer(text, reply_markup=kb)
 
 

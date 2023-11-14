@@ -21,6 +21,11 @@ async def calculator(message: types.Message, state: FSMContext):
     for el in tariffs_list:
         kb.add(InlineKeyboardButton(text=el.name, callback_data=el.id))
 
+    await message.answer(message.text if message.text != 'Назад' else '💲 Инвестиции', reply_markup=ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton('Главное меню')]
+        ], resize_keyboard=True
+    ))
     await message.answer("Выберите тариф. \nПодробно с условиями всех тарифов можно ознакомиться в разделе Тарифы",
                          reply_markup=kb)
     await state.set_state('select_tariff')
@@ -93,8 +98,8 @@ async def calculate(message: types.Message, state: FSMContext):
     text += f'Тариф {tariff.name}\n'
     if tariff.deadline != '0':
         text += f'Вложите {float(summ)}p\n'
-        text += f'Получите {str(float(summ)*((1+float(tariff.procent)/100)**float(message.text))).split(".")[0]}p\n'
-        text += f'Мгновенная выплата % {str(float(summ)*((1+float(tariff.procent)/100)**float(message.text)-1)).split(".")[0]}p\n\n '
+        text += f'Получите {str(float(summ) + float(summ)*float(tariff.procent)/100 * int(message.text)).split(".")[0]}p\n'
+        text += f'Мгновенная выплата % {str(float(summ)*float(tariff.procent)/100*int(message.text)).split(".")[0]}p\n\n '
         text += f'Вернём тело депозита через {int(message.text)} дней\n'
         text += "Тело депозита возвращается по истечению срока инвестиции"
     else:
@@ -176,8 +181,8 @@ async def buy_tariff(message: types.Message, state: FSMContext):
 
     user.balance = float(user.balance) - float(data['sum'])
     if tariff.deadline != '0':
-        user.balance = str(float(user.balance) + float(data['sum']) * (
-                    (1 + float(tariff.procent) / 100) ** int(data['deadline']) - 1)).split(".")[0]
+        user.balance = str(float(user.balance) +
+                           float(data['sum'])*((1 + float(tariff.procent) / 100) - 1)*int(data['deadline'])).split(".")[0]
     user.save()
 
     invest = Invest()
@@ -224,12 +229,12 @@ async def check_and_pay(c: types.CallbackQuery, state: FSMContext):
         ))
         await state.set_data(data)
         await state.set_state('select_sum')
-        return
 
     user.balance = float(user.balance) - float(data['sum'])
     if tariff.deadline != '0':
-        user.balance = str(float(user.balance) + float(data['sum']) * (
-                    (1 + float(tariff.procent) / 100) ** int(data['deadline']) - 1)).split(".")[0]
+        user.balance = str(float(user.balance) +
+                           float(data['sum'])*((1 + float(tariff.procent) / 100) - 1)*int(data['deadline'])).split(".")[0]
+    user.save()
 
     invest = Invest()
     invest.name = tariff.name
