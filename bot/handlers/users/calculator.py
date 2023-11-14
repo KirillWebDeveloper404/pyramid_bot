@@ -146,7 +146,7 @@ async def select_sum(c: types.CallbackQuery, state: FSMContext):
         text += "Сейчас на эвашем балансе недостаточно средств\n"
         text += "Пополнить баланс👇"
         await c.message.answer(text, reply_markup=InlineKeyboardMarkup(row_width=1).add(
-            InlineKeyboardButton(text="Пополнить", url=send_invoice(amount=float(summ)+5-float(user.balance),
+            InlineKeyboardButton(text="Пополнить", url=send_invoice(amount=float(summ)-float(user.balance),
                                                                     code=user.tg_id)),
             InlineKeyboardButton(text="Пополнил, оплатить тариф", callback_data='check_and_pay')
         ))
