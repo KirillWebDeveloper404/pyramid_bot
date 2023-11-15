@@ -12,12 +12,12 @@ from utils import send_invoice, check_pay
 @dp.callback_query_handler(text='money_out')
 async def money_out(c: types.CallbackQuery, state: FSMContext):
     user = User.get(User.tg_id == c.from_user.id)
-    if float(user.balance) >= 100:
+    if float(user.balance) > 0:
         await c.message.answer(f"Ваш баланс {user.balance}p\n"
                                "Напишите номер карты либо кошелька куда хотите вывести деньги")
         await state.set_state('sum_out')
     else:
-        await c.answer("Минимальная сумма вывода 100р")
+        await c.answer("Минимальная сумма вывода 1р")
 
 
 @dp.message_handler(state='sum_out')

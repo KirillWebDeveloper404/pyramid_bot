@@ -179,6 +179,18 @@ async def buy_tariff(message: types.Message, state: FSMContext):
     tariff = data['tariff']
     user = User.get(User.tg_id == message.from_user.id)
 
+
+    if float(user.balance) < float(data['sum']):
+        text = "Сейчас на эвашем балансе недостаточно средств\n"
+        text += "Пополнить баланс👇"
+        await message.answer(text, reply_markup=InlineKeyboardMarkup(row_width=1).add(
+            InlineKeyboardButton(text="Пополнить", url=send_invoice(amount=float(data['sum'])-float(user.balance),
+                                                                    code=user.tg_id)),
+            InlineKeyboardButton(text="Пополнил, оплатить тариф", callback_data='check_and_pay')
+        ))
+        await state.set_data(data)
+        await state.set_state('select_sum')
+        return
     user.balance = float(user.balance) - float(data['sum'])
     if tariff.deadline != '0':
         user.balance = str(float(user.balance) +
