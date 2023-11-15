@@ -144,8 +144,8 @@ async def select_sum(c: types.CallbackQuery, state: FSMContext):
     text += f'Доходность {float(tariff.procent)}%\n'
     text += f'Срок размещения {deadline} дней \n' if tariff.deadline != '0' else f'Срок размещения {float(tariff.end_time)} часов \n'
     if tariff.deadline != '0':
-        text += f'Сумма выплаты {str(float(summ) * ((1 + float(tariff.procent) / 100) ** float(deadline))).split(".")[0]}\n\n'
-        text += f'  Мгновенная выплата % {str(float(summ) * ((1 + float(tariff.procent) / 100) ** float(deadline) - 1)).split(".")[0]}p\n\n '
+        text += f'Сумма выплаты {str(float(summ) + float(summ)*float(tariff.procent)/100*float(deadline)).split(".")[0]}\n\n'
+        text += f'  Мгновенная выплата % {str(float(summ)*float(tariff.procent)/100*float(deadline)).split(".")[0]}p\n\n '
         text += f'  Вернём тело депозита через {int(deadline)} дней\n'
         text += "Тело депозита возвращается по истечению срока инвестиции"
     else:
