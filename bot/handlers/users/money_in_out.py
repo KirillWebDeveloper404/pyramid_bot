@@ -46,7 +46,6 @@ async def sum_out(message: types.Message, state: FSMContext):
         )
 
     except Exception as e:
-        prfloat(e)
         await message.answer("Неверный формат! Ведите только число.")
         await state.set_state('sum_balance')
 
