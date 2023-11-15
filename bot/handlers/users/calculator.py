@@ -232,6 +232,7 @@ async def check_and_pay(c: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     tariff = data['tariff']
     user = User.get(User.tg_id == c.from_user.id)
+    c.message.delete()
 
     invoice = check_pay(user.tg_id)
     if invoice:
